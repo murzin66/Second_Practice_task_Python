@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - main  # Триггер для пайплайна при пуше в ветку main
+      - gh-deploy  # Триггер для пайплайна при пуше в ветку main
 
 jobs:
   deploy:
