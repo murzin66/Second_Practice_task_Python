@@ -5,12 +5,11 @@
   "directories": {
     "doc": "docs"
   },
-
   
   "scripts": {
     "test": "jest",
-    "build": "webpack --config webpack.config.js", 
-    "validate-html": "html-validator --file dist/index.html", 
+    "build": "webpack --config webpack.config.js",
+    "validate-html": "html-validator --file dist/index.html",
     "minify-html": "html-minifier --input-dir dist --output-dir dist --file-ext html",
     "minify-css": "cleancss -o dist/style.min.css dist/style.css",
     "minify-js": "uglifyjs dist/script.js -o dist/script.min.js"
@@ -18,9 +17,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
 }
-
-
-
-

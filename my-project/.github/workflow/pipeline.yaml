@@ -1,32 +1,35 @@
-name: CI/CD Pipeline
+name: Test
 
-# Определяем события, при которых будет запускаться пайплайн
 on:
+  pull_request:
   push:
     branches:
-      - gh-actions # Запуск при пуше в ветку main
-  push: # Запуск при push
+      - main
 
 jobs:
-  test: # Job для тестирования
-    runs-on: ubuntu-latest # Указываем среду выполнения
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x]
     steps:
-      - uses: actions/checkout@v4 # Клонирование репозитория
-      - uses: actions/setup-node@v4 # Установка Node.js
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
         with:
-          node-version: 20 # Указываем версию Node.js
-          g
-      - run: npm ci # Установка зависимостей
-      - run: npm test # Запускаем тесты
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm test
 
+# Остальные jobs (build и deploy) остаются без изменений
+jobs:
   build: # Job для сборки проекта
     runs-on: ubuntu-latest # Указываем среду выполнения
-    needs: test # Зависимость от job 'test'
+    needs: lint # Зависимость от job 'lint'
     steps:
-      - uses: actions/checkout@v4 # Клонирование репозитория
-      - uses: actions/setup-node@v4 # Установка Node.js
+      - uses: actions/checkout@v2 # Клонирование репозитория
+      - uses: actions/setup-node@v1 # Установка Node.js
         with:
-          node-version: 20 # Указываем версию Node.js
+          node-version: 22.x # Указываем версию Node.js
       - run: npm ci # Установка зависимостей
       - name: Build # Шаг сборки
         run: npm run build # Выполняем сборку проекта
@@ -43,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest # Указываем среду выполнения
     needs: build # Зависимость от job 'build'
     steps:
-      - uses: actions/checkout@v4 # Клонирование репозитория
+      - uses: actions/checkout@v2 # Клонирование репозитория
       - name: Deploy to GitHub Pages # Шаг деплоя на GitHub Pages
         run: |
           npm install -g gh-pages # Установка пакета gh-pages
