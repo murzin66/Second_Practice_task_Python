@@ -1,0 +1,52 @@
+name: CI/CD Pipeline
+
+# Определяем события, при которых будет запускаться пайплайн
+on:
+  push:
+    branches:
+      - gh-actions # Запуск при пуше в ветку main
+  push: # Запуск при push
+
+jobs:
+  test: # Job для тестирования
+    runs-on: ubuntu-latest # Указываем среду выполнения
+    steps:
+      - uses: actions/checkout@v4 # Клонирование репозитория
+      - uses: actions/setup-node@v4 # Установка Node.js
+        with:
+          node-version: 20 # Указываем версию Node.js
+          g
+      - run: npm ci # Установка зависимостей
+      - run: npm test # Запускаем тесты
+
+  build: # Job для сборки проекта
+    runs-on: ubuntu-latest # Указываем среду выполнения
+    needs: test # Зависимость от job 'test'
+    steps:
+      - uses: actions/checkout@v4 # Клонирование репозитория
+      - uses: actions/setup-node@v4 # Установка Node.js
+        with:
+          node-version: 20 # Указываем версию Node.js
+      - run: npm ci # Установка зависимостей
+      - name: Build # Шаг сборки
+        run: npm run build # Выполняем сборку проекта
+      - name: Validate HTML # Шаг валидации HTML
+        run: npm run validate-html # Валидация HTML файлов
+      - name: Minify HTML # Шаг минификации HTML
+        run: npm run minify-html # Минификация HTML файлов
+      - name: Minify CSS # Шаг минификации CSS
+        run: npm run minify-css # Минификация CSS файлов
+      - name: Minify JS # Шаг минификации JavaScript
+        run: npm run minify-js # Минификация JavaScript файлов
+
+  deploy: # Job для деплоя
+    runs-on: ubuntu-latest # Указываем среду выполнения
+    needs: build # Зависимость от job 'build'
+    steps:
+      - uses: actions/checkout@v4 # Клонирование репозитория
+      - name: Deploy to GitHub Pages # Шаг деплоя на GitHub Pages
+        run: |
+          npm install -g gh-pages # Установка пакета gh-pages
+          gh-pages -d dist # Деплой из директории dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Токен для доступа к GitHub
